@@ -1,4 +1,3 @@
-
 object julieta{
 
     var property tickets = 15 // esto son atributos, var: que cambia
@@ -90,20 +89,6 @@ object taladro {
   var property costo = 200 // puede variar; por eso el propierty
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
