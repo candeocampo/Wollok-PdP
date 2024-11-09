@@ -8,15 +8,24 @@ class Personaje {
 
     method potencialOfensivo() = 10 * fuerza + rol.potencialOfensivoExtra()
 
+    method esGroso() = self.esInteligente() || rol.esGroso(self)
+        //"self" se manda msj a si mismo       
+        // self.esGrosoParaSuRol() es igual a  = rol.esGroso(self) -> esto tmb lo podiamos haber puesto así en vez de "self.esGrosoParaSuRol()"
 
+    method esInteligente()
+
+    // method esGrosoParaSuRol() = rol.esGroso(self) // con el self le pasamos el propio rol como parametro
 }
 
 class Humano inherits Personaje {
 
-
+    override method esInteligente() = inteligencia > 50
+    // pisamos el método principal
 }
 
 class Orco inherits Personaje { 
+
+    override method esInteligente() = false
 
     override method potencialOfensivo() = super() * 1.1
     // con override pisamos el metodo de personaje
@@ -30,17 +39,20 @@ class Orco inherits Personaje {
 object guerrero {
     method potencialOfestivoExtra() = 100
 
+    method esGroso(personaje) = personaje.fuerza() > 50
 }
 
 object brujo {
     method potencialOfestivoExtra() = 0
-    
+    method esGroso(personaje) = true
 }
 
 class Cazador {
     var mascota 
     method potencialOfestivoExtra() = mascota.potencialOfensivo()
-  
+    
+    method esGroso(personaje) = mascota.esLongeva()
+
 }
 
 class Mascota{
@@ -51,6 +63,8 @@ class Mascota{
     method potencialOfesivo() =
         if(tieneGarras) fuerza * 2
         else fuerza
+
+    method esLongeva() = edad > 10
 
 }
 
