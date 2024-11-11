@@ -35,7 +35,8 @@ class Orco inherits Personaje {
 
 }
 
-// ROLES
+//PUNTO 2) ROLES
+
 object guerrero {
     method potencialOfestivoExtra() = 100
 
@@ -77,6 +78,60 @@ class Mascota{
 
 // const pirulo = new Orco(rol=brujo) instanciamos un orco con su rol
 // pirulo.rol(guerrero) acá le cambiamos el rol
+
+
+// PUNTO 3) ZONAS
+
+class Ejercito{
+
+    const property miembros = [] //lista de personajes
+
+    method potencialOfensivo() = miembros.sum{personaje => personaje.potencialOfensivo()}
+
+    method invadir(zona){
+        if(zona.potencialDefensivo() < self.potencialOfensivo()){
+            zona.SeOcupadaPor(self) //la zona es ocupada por mi; por eso el self.
+        }
+
+
+    }
+
+    
+}
+
+class Zona{
+
+    var habitantes // esto va a ser del ejercito
+
+    method potencialDefensivo() = habitantes.potencialOfensivo()
+
+    method seOcupaPor(ejercito){
+        habitantes = ejercito // los habitantes se pisan con el ejercito invasor.
+    }
+}
+
+class Ciudad inherits Zona{
+
+    override method potencialDefensivo() = super() * 300
+
+}
+
+class Aldea inherits Zona{
+    const maxHabitantes = 50 // las aldeas tienen un maximo de ocupación
+
+    override method seOcupaPor(ejercito){ // en este método cambiamos el ejercito que llega
+        if(ejercito.miembros().size() > maxHabitantes){ // si el ejercito tiene más miembros de los que puedo soportar
+            // si el ejercito es grande lo partimos
+            const nuevosHabitantes = 
+            ejercito.miembros().sortedBy{uno,otro => uno.potencialOfensivo() > otro.potencialOfensivo()}.take(10)
+                                // los ordenamos por el potencial ofensivo y tomamos 10 nomás
+            super(new Ejercito(miembros = nuevosHabitantes)) // llamamos a super con esos nuevos habitante; pasamos una LISTA!
+            ejercito.miembros().removeAll(nuevosHabitantes) // con esto sacamos los miembros del ejercito y pasan a ser los habitante
+        
+        }else super(ejercito) // acá no pasa nada
+    }
+
+}
 
 
 
