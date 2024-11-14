@@ -107,6 +107,7 @@ class APruebaDeFallos inherits AhorroDeEnergia{
     override method computoDe(equipo) = super(equipo) / 2
 
     override method periodicidadDeError() = 100
+
 }
 
 
@@ -177,36 +178,3 @@ class B2 inherits Equipo{
     */ 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
