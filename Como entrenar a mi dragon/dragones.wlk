@@ -2,6 +2,7 @@
 /*
 Punto 1) posta.esMejor(competidor,competidor2)
 Punto 2) torneo.jugarse()
+Punte 3) vikingo.puedeMontar(dragon)
 
 */
 
@@ -36,8 +37,12 @@ class Vikingo{
         return posta.hambreQueProduce()
     }
 
+    // Punto 3
+    method puedeMontar(dragon){
+        return dragon.permiteSerMontado(self)
+    }
 
-
+    
 
 }
 
@@ -101,6 +106,18 @@ class Carrera inherits Posta{
     override method hambreQueProduce() = 1
 }
 
+// Punto 2
+class Torneo{
+    var property postas
+    var property anotados
+    var property dragonesDisponibles
+    
+    method jugarse(){
+        postas.forEach({participante => participante.jugarse(anotados,dragonesDisponibles)})
+    }
+
+}
+
 
 // Algunos Personajes
 class Patapez inherits Vikingo{
@@ -123,6 +140,37 @@ class Patapez inherits Vikingo{
     }
 
 }
+
+// Punto 3
+class Dragon{
+    const property velocidadBase = 60
+    var property pesoDragon
+    var property danioQueProduce
+    
+
+    method velocidad() = velocidadBase - pesoDragon
+
+    method puedeCargar() = 0.max(pesoDragon * 0.20)
+
+    method permiteSerMontado(vikingo){
+        return self.requisitos().all({req => req.cumpleRequisito(vikingo,dragon)})
+    }
+
+    method requisitos() = #{requisitoBase}
+
+}
+
+object requisitoBase{
+    method cumpleRequisito(vikingo,dragon) = vikingo.peso() < dragon.peso()
+}
+
+class FuriaNoctura inherits Dragon{ // CHIMUELO TE AMITO <3
+
+    override method velocidad() = super() * 3
+
+}
+
+
 
 
 

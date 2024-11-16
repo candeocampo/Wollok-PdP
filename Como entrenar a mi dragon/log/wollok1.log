@@ -89,3 +89,5 @@
 {"level":"info","message":"⌛ Validating dragones.wlk","timeElapsed":104,"timestamp":"2024-11-16T02:21:03.340Z"}
 {"level":"info","message":"⌛ Validating dragones.wlk","timeElapsed":113,"timestamp":"2024-11-16T02:21:03.591Z"}
 {"level":"info","message":"⌛ Validating dragones.wlk","timeElapsed":104,"timestamp":"2024-11-16T02:21:04.096Z"}
+{"level":"info","message":"⌛ Building environment","timeElapsed":110,"timestamp":"2024-11-16T19:29:53.598Z"}
+{"level":"info","message":"onRequest - WORKSPACE_URI:file:///c%3A/Users/Candela/Desktop/Wollok-PdP/Como%20entrenar%20a%20mi%20dragon","timestamp":"2024-11-16T19:29:53.600Z"}
