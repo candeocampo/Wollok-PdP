@@ -1,9 +1,12 @@
+
 /*
 Punto 1) posta.esMejor(competidor,competidor2)
+Punto 2) torneo.jugarse()
 
 */
 
-// PERSONAJE // 
+
+
 class Vikingo{
     var property peso
 	var property barbarosidad
@@ -25,6 +28,15 @@ class Vikingo{
         return self.nivelDeHambre() + posta.hambreQueProduce() < 100
     }
 
+    method sufrirEfectos(posta){
+        nivelDeHambre += self.hambreQueProduce(posta)
+    }
+
+    method hambreQueProduce(posta){ // Abstracción para poder redefinir sólo esto en patapez
+        return posta.hambreQueProduce()
+    }
+
+
 
 
 }
@@ -40,6 +52,9 @@ class Arma inherits Item{
     var property danio
 }
 
+class Comestible{
+    var property porcentajeDisminuye
+}
 
 // POSTAS
 class Posta{
@@ -50,6 +65,10 @@ class Posta{
 
     method hambreQueProduce() // clase abstracta
 
+    method inscribirse(participante) = competidores
+        .filter({participante => participante.puedeParticipar()}).add(participante)
+
+    method resultadosOrdenados() = competidores.sortBy{mejor,peor=>self.esMejor(mejor,peor)}
 
 }
 
@@ -83,6 +102,27 @@ class Carrera inherits Posta{
 }
 
 
+// Algunos Personajes
+class Patapez inherits Vikingo{
+  
+    override method puedeParticipar(posta){
+        return self.nivelDeHambre() < 50
+    }
+
+    override method hambreQueProduce(posta){
+        return super(posta) * 2
+    }
+
+    method comer(){
+        nivelDeHambre = 0.max(nivelDeHambre - item.porcentajeDisminuye())
+    }
+
+    override method sufrirEfectos(posta){
+        super(posta) // esto va por herencia: sufre el efecto de la posta + el propio
+        self.comer()
+    }
+
+}
 
 
 
