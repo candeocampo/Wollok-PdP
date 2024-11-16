@@ -42,7 +42,7 @@ class Vikingo{
         return dragon.permiteSerMontado(self)
     }
 
-    
+
 
 }
 
@@ -169,33 +169,5 @@ class FuriaNoctura inherits Dragon{ // CHIMUELO TE AMITO <3
     override method velocidad() = super() * 3
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
