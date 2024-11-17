@@ -19,7 +19,7 @@ class Inmueble{
 
     method zona() = zona
 
-
+    method validarParaQueSeaVendido()
 }
 
 class Casa inherits Inmueble{
@@ -190,7 +190,62 @@ class Empleado{
 
 }
 
+class Cliente{
+    var property nombreCliente
 
+    method nombre(nombre){
+        nombreCliente = nombre
+    }
+}
+
+
+// Punto 5
+/*
+class Inmueble{
+    const metros
+    const cantAmbientes
+    const zona
+
+    method valor() = self.valorParticular() + zona.valor()
+
+    method valorParticular() // método abstracto
+
+    method zona() = zona
+
+    method validarParaQueSeaVendido()
+}
+
+class Casa inherits Inmueble{
+    var valorParticular
+
+    override method valorParticular() = valorParticular
+}
+
+*/
+class Local inherits Casa{
+    var tipoLocal
+
+    override method valor() = tipoLocal.valor(super())
+
+    override method validarParaQueSeaVendido(){
+        self.error("No se puede vender un local")
+    }
+
+}
+
+object galpon{
+    method valorFinal(precioBase) = precioBase / 2
+}
+
+object aLaCalle{
+    var montoFijo
+
+    method montoFijo(monto){
+        montoFijo = monto
+    }
+
+    method valorFinal(precioBase) = precioBase + montoFijo
+}
 
 
 
