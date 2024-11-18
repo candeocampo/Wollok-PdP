@@ -1,135 +1,121 @@
-// PUNTO 1)
-/* pokemon.grositud()*/
+/*
+Punto 1) pokemon.grositud()
+Punto 2.a) movimiento.usarEntre(usuario,contricante)
+Punto 2.b) pokemon.lucharContra(contrincante)
 
-// PUNTO 2a)
-// movimiento.usarEntre(usuario, contrincante)
-
-// 2.b)
-// pokemon.lucharContra(contrincante)
-
+*/
 class Pokemon{
-
-    const vidaMaxima
     const movimientos = []
-    var vida = 0
-    var property condicion = normal
+    const vidaMaxima // es constante
+    var puntosDeVida = 0
+    var property condicion = normal // condicion
 
-    method grositud () = vidaMaxima * movimientos.sum{movimiento => movimiento.poder()}
+    method grositud() = vidaMaxima * self.poderTotalDeMovimientos()
 
-    method curar(puntosDeSalud){
-        vida = (vida + puntosDeSalud).min(vidaMaxima) // que al agg vida no supere la vida maxima
+    method poderTotalDeMovimientos() = movimientos.sum{movimiento => movimiento.poder()}
+
+    // Punto 2.a
+    method curarVida(cantidad) {
+        puntosDeVida = (cantidad + puntosDeVida).min(vidaMaxima)
     }
 
     method recibirDanio(danio){
-        vida = 0.max(vida - danio)
+        puntosDeVida -=danio
     }
 
+    // Punto 2.b 
     method lucharContra(contrincante){
-        self.validarQueEstaVivo()
-        const movimientoAUsar = self.movimientoDisponible()//elegir un mov disponible
-        // usar el mov sólo si la cond lo permite
-        condicion.intentaMoverse(self)
-        movimientoAUsar.usarEntre(self, contrincante) //el self sería del pokemon
+        if(!self.estaVivo()){
+            self.error("El pokemon no está vivo")
+        }
+        const movimientoAUsar = self.movimientoDisponible() // elegir un movimiento disponible
+        condicion.intentaMoverse(self) // usar ese movimiento sólo si la condición del mov se lo permite
+        movimientoAUsar.usarEntre(self,contrincante)
     }
 
-    method movimientoDisponible() = movimientos.find{movimiento => movimiento.estaDisponible()}
+    method movimientoDisponible() = movimientos.find({movimiento => movimiento.estaDisponible()})
 
     method normalizar(){
         condicion = normal
     }
-    
-    method validarQueEstaVivo(){
-        if(vida==0){
-            self.error("El pokemon no está vivo")
-        }
-    }
+
+    method estaVivo() =  puntosDeVida > 0
+
+
 }
 
 
-//Movimientos
 class Movimiento{
-    var usosPendientes = 0 // realmente cuando lo instanciamos deberiamos poner los usos
+    var cantidadUsos = 0
 
-    method estaDisponible() = usosPendientes > 0
-
-    method afectarPokemones(usuario,contrincante) // es un método abstracto
-
+    // Punto 2.a
     method usarEntre(usuario,contrincante){
         if(!self.estaDisponible()){
-            self.error("El movimiento no está disponible.")
-            usosPendientes -= 1 //decremento el uso
-            self.afectarPokemones(usuario,contrincante)
+            self.error("Movimiento agotado!")
         }
+        self.modificarUsosMovimiento(1)
+        self.afectarPokemones(usuario,contrincante)
+        
     }
+
+    method modificarUsosMovimiento(cantidad){
+        cantidadUsos -= cantidad
+    }
+
+    method estaDisponible() = cantidadUsos > 0
+
+    method afectarPokemones(usuario,contrincante) // No podría hacer efectoMovimiento() porque el enunciado hablá de que el efecto afecta a uno y al contrincante ¡¡¡A tener en cuenta!!!
+
 
 }
 
-class MovimientoCurativo inherits Movimiento{
+class Curativo inherits Movimiento{
     const puntosDeSalud
 
-    method poder() = puntosDeSalud
+    method poder() = puntosDeSalud 
 
     override method afectarPokemones(usuario,contrincante){
-        usuario.curar(puntosDeSalud)
+        usuario.curarVida(puntosDeSalud) //"El pokemon que lo usa se cura la vida"
+    }
+}
+
+class Danino inherits Movimiento{
+    const danioQueProduce
+
+    method poder() = danioQueProduce * 2
+
+    override method afectarPokemones(usuario,contrincante){
+        contrincante.recibirDanio(danioQueProduce) //"El pokemon enfrentado recibe un danio que depende del mov..."
+    }
+}
+
+class Especial inherits Movimiento{
+    const tipoCondicion
+
+    method poder() = tipoCondicion.poder()
+
+    override method afectarPokemones(usuario,contrincante){
+        contrincante.condicion(tipoCondicion) // "Pasa a tener la condición especial que el mov genera..."
     }
 
 }
 
-class MovimientoDanino inherits Movimiento{
-    const danio
-
-    method poder() = danio * 2
-
-    override method afectarPokemones(usuario,contrincante){
-        contrincante.recibirDanio(danio)
-    }
-
-}
-
-// const confusion = new Confusion(turnosQueDura = 2)
-// const movimiento = new MovimientoEspecial(condicionQueGenera = confusion)
-// afectarPokemones --> pokemon.condicion(confusion)
-class MovimientoEspecial inherits Movimiento{
-    const condicionQueGenera
-
-    method poder() = condicionQueGenera.poder()
-
-    
-    override method afectarPokemones(usuario,contrincante){
-        contrincante.condicion(condicionQueGenera) // otra forma: contrincante.condicion(condicionQueGenera)
-    }
-    
-}
-
-// COndicion
+// Hacemos una clase
 class CondicionEspecial{
-    
-    method intentaMoverse(pokemon){
-        if(!self.lograMoverse())
-            self.error("No puede moverse el pokemon")
+    method intentaMoverse(pokemon){ // acá avisa si intento moverse
+        if(!self.lograMoverse()){
+            self.error("No pudo moverse")
+        }
     }
 
     method lograMoverse() = 0.randomUpTo(2).roundUp().even()
 
-    method poder() // sería abstracto
-
+    method poder()
 }
 
-object normal {
-    method intentaMoverse(pokemon){
-		// siga, siga
-	}
-}
-
-// Condiciones Especiales
-object paralisis inherits CondicionEspecial{
-    
-    override method poder() = 30
-
-}
 
 object suenio inherits CondicionEspecial{
-    
+
     override method poder() = 50
 
     override method intentaMoverse(pokemon){
@@ -138,31 +124,21 @@ object suenio inherits CondicionEspecial{
     }
 }
 
-class Confusion inherits CondicionEspecial{ //acá no va como object nos interesa la cant de turnos acá
-    const turnosQueDura = 0
-
-    override method poder() = 40 * turnosQueDura
-
-    override method intentaMoverse(pokemon){
-		self.pasoUnTurno(pokemon)
-		try{
-			super(pokemon)
-		}
-		catch e{
-			pokemon.recibirDanio(20)
-            self.error("El pokemon no pudo moverse y se hizo daño a si mismo.")
-		}
-    }
-
-    method pasoUnTurno(pokemon){
-        if(turnosQueDura == 0){
-            pokemon.normalizar()
-        }else{
-            pokemon.condicion(new Confusion(turnosQueDura = turnosQueDura - 1)) // con esto evitamos que mute
-        }
-    }
-
+object paralisis inherits CondicionEspecial{
+    override method poder() = 30
 }
+
+object normal{
+    // es una condición que tiene un pokemon que tiene cuando NO tiene ninguna condicion especial
+    method intentaMoverse(pokemon){
+        // ok entiende el msj listo
+    }
+}
+
+
+
+
+
 
 
 
