@@ -1,7 +1,9 @@
 /*
 RESUELTO CON: HERENCIA! :)
 Punto 1) empleado.estaIncapacitado()
-Puesto 2) empleado.puedeUsar(habilidad)
+Punto 2) empleado.puedeUsar(habilidad)
+Punto 3) empleado.cumplir(mision) es un msj de efecto
+o podría ser: mision.serCumplidaPor(empleado) ¿Quién tiene la responsabilidad?
 
 
 Ej de instanciación: const juan = new Espia()
@@ -13,7 +15,7 @@ ATENTO! => Al hacerlo con herencia el puesto de Juan siempre va a ser espia no p
 
 
 class Empleado{
-    const habilidades = [] // no va #{} porque las habilidades son DIFERENTES!
+    const habilidades = #{} 
     var property salud
     var puesto
     //var esJefe = false // con esto nos diria si es JEFE o NO pero NO nos conviene ponerlo, pues si es o no jefe depende de subordinados
@@ -33,6 +35,26 @@ class Empleado{
     
     method esJefe() = subordinados.notEmpty() // nos dice si no está vacía
     */ 
+
+    // Punto 3
+    method recibirDanio(cantidad){
+        salud -= cantidad
+    }
+
+    method estaVivo() = salud > 0
+
+    method finalizarMision(mision){
+        if(self.estaVivo()){
+            self.completarMision(mision)
+        }
+    }
+
+    method completarMision(mision){
+        puesto.completarMision(mision,self) // dependerá del puesto según si es oficinista o espia
+    }
+
+    method aprenderHabilidad(habilidad) = habilidades.add(habilidad)
+
 }
 
 class Jefe inherits Empleado{
@@ -41,44 +63,94 @@ class Jefe inherits Empleado{
     override method poseeHabilidad(habilidad) = super(habilidad) || self.algunSobordinadoTiene(habilidad)
     
     method algunSobordinadoTiene(habilidad) = subordinados.any{subordinado => subordinado.puedeUsar(habilidad)}
-
-
 }
 
 object puestoEspia { // esto significa que hay UN único puesto de espia
     method saludCritica() = 15
-}
 
-class PuestoOficinista{ // esto no puede ser un object porque tiene estado interno.
-    var estrellas = 0
-    method saludCritica() = 40 - 5 * estrellas
-    method ganarEstrella(cantidad){
-        estrellas +=cantidad
+    // requiere que la misión conozca al empleado porque las habilidades las tiene el EMPLEADO
+    method completarMision(mision,empleado){
+        mision.enseniarHabilidades(empleado) 
     }
 }
 
-/*
-Punto 2: vemos que repetimos código por lo que la HERENCIA ES DE UN SOLO TIRO!
+class puestoOficinista{ // esto no puede ser un object porque tiene estado interno.
+    var estrellas = 0
+    
+    method saludCritica() = 40 - 5 * estrellas
+
+    method ganarEstrella(cantidad){
+        estrellas +=cantidad
+    }
+
+    method completarMision(mision,empleado){
+        self.ganarEstrella(1)
+        if(estrellas == 3){
+            empleado.puesto(puestoEspia) //cambiaría el puesto.
+        }
+    }
+}
+/* Punto 2: vemos que repetimos código por lo que la HERENCIA ES DE UN SOLO TIRO!
 Debemos usar composición ya que usamos herencia para hacer que un empleado sea oficinista o espia 
 y queremos ahora saber si alguno es Jefe
 
 class EspiaJefe inherits Espia{
     const subordinados = []
-    
     override method poseeHabilidad(habilidad) = super(habilidad) || self.algunSobordinadoTiene(habilidad)
-    
     method algunSobordinadoTiene(habilidad) = subordinados.any{subordinado => subordinado.puedeUsar(habilidad)}
 }
-
 class OficinistaJefe inherits Oficinista{
     const subordinados = []
-    
     override method poseeHabilidad(habilidad) = super(habilidad) || self.algunSobordinadoTiene(habilidad)
-    
     method algunSobordinadoTiene(habilidad) = subordinados.any{subordinado => subordinado.puedeUsar(habilidad)}
-}
+} 
+
+Punto 3
+El interfaz "asignado" tendría que entender estos dos msj:
+- recibirDanio(peligrosidad),
+- puedeUsar(hab)
+- finalizarMision(mision)
 */
 
+class Mision{
+    const habilidadesRequeridas = []
+    var peligrosidad
+
+    method habilidades() = habilidadesRequeridas
+
+    method serCumplidaPor(asignado){ // asignado por si es un equipo o un empleado
+        self.validarHabilidades(asignado)
+        asignado.recibirDanio(peligrosidad)
+        asignado.finalizarMision(self)
+    }   
+
+    method reuneHabilidadesRequeridas(asignado) = habilidadesRequeridas.all({hab => asignado.puedeUsar(hab)})
+
+    method validarHabilidades(asignado){
+        if(!self.reuneHabilidadesRequeridas(asignado)){
+            self.error("La misión no se puede cumplir")
+        }
+    }
+
+    method enseniarHabilidades(empleado){
+        self.habilidadesQueNoPosee(empleado).forEach({hab => empleado.aprenderHabilidad(hab)})
+    }
+
+    method habilidadesQueNoPosee(empleado) = habilidadesRequeridas.filter({hab => !empleado.poseeHabilidad(hab)})
+
+}
+
+class Equipo{
+    const empleados = []
+
+    method recibirDanio(cantidad) = empleados.forEach({empleado => empleado.recibirDanio(cantidad/3)})
+ 
+    method puedeUsar(habilidad) = empleados.any({empleado => empleado.puedeUsar(habilidad)})
+
+    method finalizarMision(mision){
+        empleados.forEach({empleado => empleado.finalizarMision(mision)})
+    }
+}
 
 
 
