@@ -135,38 +135,26 @@ object normal{
     }
 }
 
+class Confusion inherits CondicionEspecial{
+    const duracionTurnos
+    
+    override method poder() = 40 * duracionTurnos
 
+    override method intentaMoverse(pokemon){
+        if(super(pokemon)){
+            pokemon.recibirDanio(20)
+            self.pasoUnTurno(pokemon)
+            self.error("El pokemon no pudo moverse")
+        }
+        self.pasoUnTurno(pokemon)
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    method pasoUnTurno(pokemon){
+        if(duracionTurnos > 1){
+            pokemon.condicion(new Confusion(duracionTurnos = duracionTurnos - 1))
+        }else{
+            pokemon.normalizar()
+        }
+    }
+}
 
