@@ -66,7 +66,10 @@ class Hechizo{
     method aplicarEfecto(impacto,hechizero,contrincante) // donde va a aplicarse el efecto según el tipo de hechizo
 
     // punto c
-    method conveniente(hechizero,contrincante)
+    method conveniente(hechizero,contrincante) = 
+        self.convenienciaBase(hechizero,contrincante) + efectos.sum({efecto => efecto.impactoAConveniente()})
+
+    method convenienciaBase(hechizero,contrincante) = self.impactoEnResistencia(hechizero, contrincante)
 
 
 
@@ -78,6 +81,7 @@ class HechizoCurativo inherits Hechizo{
         hechizero.variarResistencia(impacto)
     }
 
+
 }
 
 class HechizoAtaque inherits Hechizo{
@@ -85,9 +89,25 @@ class HechizoAtaque inherits Hechizo{
     override method aplicarEfecto(impacto,hechizero,contrincante){
         contrincante.variarResistencia(impacto)
     }
+
+    // punto c
+    override method convenienciaBase(hechizero, contrincante){
+        const terminariaElDuelo = self.impactoEnResistencia(hechizero, contrincante) >= contrincante.resistencia()
+        return super(hechizero, contrincante) * if(terminariaElDuelo)  2 else 1
+    }
 }
 
+// pundo D
+object caracteristicaBalance{
+    method valor(hechizero) = (hechizero.coraje() + hechizero.empatia() + hechizero.conocimiento()) /3 
 
+    /* otra forma de escribirlo:
+        method valor(hechicero) {
+        const caracteristicas = [caracteristicaEmpatia, carateristicaCoraje, carateristicaConocimiento]
+        return caracteristicas.sum {caracteristica => caracteristica.valor(hechicero)} / caracteristicas.length()
+    }
+    */
+}
 
 
 
