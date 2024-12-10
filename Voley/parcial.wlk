@@ -3,9 +3,83 @@
 2) jugador.saquePeligroso()
 3) jugador.puedeRematar()
 4) equipo.rotar()
+5) partido.equipoConVentaja()
 
 
 */
+// Punto 4
+class Partido{
+    var property estadoActual = new PorElSaque()
+    const marcadorEquipoA
+    const marcadorEquipoB
+
+    // abstracciones para facilitar el uso interno de los marcadores
+    method marcadores() = [marcadorEquipoA,marcadorEquipoB]
+    method marcadorEquipo(equipo) = self.marcadores().find{marcador => marcador.equipo() == equipo}
+
+    method equipoConVentaja() = estadoActual.equipoConVentaja()
+
+    // abstracciones para el punto 4, para obtener informacion del partido, encapsulando detalles del marcador.
+    method equipos() = self.marcadores().map{marcador=>marcador.equipo()}
+    method puntajeEquipo(equipo) = self.marcadorEquipo(equipo).puntos() 
+
+    // punto 4
+    method equipoConMayorPuntaje() = self.equipos().max({equipo => self.puntajeEquipo(equipo)})
+}
+
+class Marcador{
+    var puntos = 0
+    const property equipo
+
+    method puntos() = puntos
+
+    method sumarPuntos(puntoGanado){
+        puntos +=puntoGanado
+    }
+}
+
+class EstadoPartido{
+
+    method equipoConVentaja(partido){
+        if(partido.estanEmpatados()){
+            return self.equipoConVentajaEnEmpate(partido)
+        }else{
+            return partido.equipoConMayorPuntaje()
+        }
+    }
+
+    method equipoConVentajaEnEmpate(partido) = partido.equipos().max{equipo => equipo.alturaPromedio()}
+
+    method anotaPunto(partido,equipo)
+
+}
+
+// estados de partido
+class PorElSaque inherits EstadoPartido{
+    override method anotaPunto(partido,equipo){
+        partido.estadoActual(new EnJuego(equipoEnSaque = equipo))
+    }
+}
+
+class EnJuego inherits EstadoPartido{
+    var property equipoEnSaque // el equipo que saca en el PARTIDO
+
+    override method equipoConVentajaEnEmpate(partido){
+        if(self.equipoEnSaque().tieneSacadorPeligroso()){
+            return self.equipoEnSaque()
+        }
+        return super(partido)
+    }
+
+}
+
+class Terminado inherits EstadoPartido{
+
+}
+
+
+
+
 
 class Equipo{
     const integrantes = []
@@ -15,8 +89,10 @@ class Equipo{
     method cantidadJugadores() = integrantes.size()
 
     // Punto 4
-    method rotar()
+    method rotar() = integrantes.forEach{jugador => jugador.cambiarPosicionAlRotar()}
 
+    // Punto 5
+    method tieneSacadorPeligroso() = integrantes.find({jugador => jugador.posicionDeSaque()}).saquePeligroso()
 }
 
 class Jugador{
@@ -27,7 +103,6 @@ class Jugador{
     // Punto 3
     var property posicionActual
 
-
     method saquePeligroso() = saquesQueConoce.any{saque => saque.esPeligroso(self)}
 
     method dominaSaque(saque) = saque.efectividad(self) > 80 
@@ -35,6 +110,13 @@ class Jugador{
     // Punto 3
     method puedeRematar() = (altura >= 1.60) && posicionActual.permiteRematar()
 
+    // Punto 4
+    method cambiarPosicionAlRotar(){
+        posicionActual = posicionActual.posicionSiguiente() // ??
+    }
+
+    // Punto 5
+    method posicionDeSaque() = posicionActual.posicionDeSaque()
 
 
 }
@@ -85,12 +167,12 @@ class Zaguero inherits Posicion{
     override method permiteRematar() = false
 }
 
+// Posiciones conocidas 
 object zagueroDerecho inherits Zaguero(numPosicion = 1, posicionSiguiente = zagueroCentro){}
-
 object delanteroDerecho inherits Delantero(numPosicion = 2, posicionSiguiente = zagueroDerecho){}
 object delanteroCentro inherits Delantero(numPosicion = 3, posicionSiguiente = delanteroDerecho){}
 object delanteroIzquierdo inherits Delantero(numPosicion = 4, posicionSiguiente = delanteroCentro){}
-object zagueroIzquierdo inherits Zaguero(numPosicion = 5, posicionSiguiente = delanteroIzquierdo ){}
+object zagueroIzquierdo inherits Zaguero(numPosicion = 5, posicionSiguiente = delanteroIzquierdo){}
 object zagueroCentro inherits Zaguero(numPosicion = 6, posicionSiguiente = zagueroIzquierdo){}
 
 
