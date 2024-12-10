@@ -4,6 +4,7 @@
 3) jugador.puedeRematar()
 4) equipo.rotar()
 5) partido.equipoConVentaja()
+6) partido.anotarPunto(equipo) o equipo.anotarPunto(partido)
 
 
 */
@@ -41,11 +42,9 @@ class Marcador{
 class EstadoPartido{
 
     method equipoConVentaja(partido){
-        if(partido.estanEmpatados()){
-            return self.equipoConVentajaEnEmpate(partido)
-        }else{
-            return partido.equipoConMayorPuntaje()
-        }
+        if(partido.estanEmpatados()) self.equipoConVentajaEnEmpate(partido) // No utilizamos return porque no esperamos que nos devuelva algo
+        else partido.equipoConMayorPuntaje()
+
     }
 
     method equipoConVentajaEnEmpate(partido) = partido.equipos().max{equipo => equipo.alturaPromedio()}
@@ -65,7 +64,7 @@ class EnJuego inherits EstadoPartido{
     var property equipoEnSaque // el equipo que saca en el PARTIDO
 
     override method equipoConVentajaEnEmpate(partido){
-        if(self.equipoEnSaque().tieneSacadorPeligroso()){
+        if(self.equipoEnSaque().tieneSacadorPeligroso()){ // acá si utilizamos return pues el método necesita devolver un valor
             return self.equipoEnSaque()
         }
         return super(partido)
@@ -174,30 +173,5 @@ object delanteroCentro inherits Delantero(numPosicion = 3, posicionSiguiente = d
 object delanteroIzquierdo inherits Delantero(numPosicion = 4, posicionSiguiente = delanteroCentro){}
 object zagueroIzquierdo inherits Zaguero(numPosicion = 5, posicionSiguiente = delanteroIzquierdo){}
 object zagueroCentro inherits Zaguero(numPosicion = 6, posicionSiguiente = zagueroIzquierdo){}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
