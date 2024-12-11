@@ -5,9 +5,8 @@
 4) equipo.rotar()
 5) partido.equipoConVentaja()
 6) partido.anotarPunto(equipo) o equipo.anotarPunto(partido)
-
-
 */
+
 // Punto 4
 class Partido{
     var property estadoActual = new PorElSaque()
@@ -23,9 +22,16 @@ class Partido{
     // abstracciones para el punto 4, para obtener informacion del partido, encapsulando detalles del marcador.
     method equipos() = self.marcadores().map{marcador=>marcador.equipo()}
     method puntajeEquipo(equipo) = self.marcadorEquipo(equipo).puntos() 
+    method empate() = marcadorEquipoA.puntos() == marcadorEquipoB.puntos()
 
     // punto 4
     method equipoConMayorPuntaje() = self.equipos().max({equipo => self.puntajeEquipo(equipo)})
+
+    // Punto 6
+    method algunEquipoCon25Puntos() = self.equipos().any({equipo => self.puntajeEquipo(equipo) >=25})
+    method hayDiferenciaMayorA2() = (marcadorEquipoA.puntos() - marcadorEquipoB.puntos()).abs() >=2
+
+    method hayPuntajeFinal() = self.algunEquipoCon25Puntos() && self.hayDiferenciaMayorA2()
 }
 
 class Marcador{
@@ -40,17 +46,12 @@ class Marcador{
 }
 
 class EstadoPartido{
-
     method equipoConVentaja(partido){
         if(partido.estanEmpatados()) self.equipoConVentajaEnEmpate(partido) // No utilizamos return porque no esperamos que nos devuelva algo
         else partido.equipoConMayorPuntaje()
-
     }
-
     method equipoConVentajaEnEmpate(partido) = partido.equipos().max{equipo => equipo.alturaPromedio()}
-
     method anotaPunto(partido,equipo)
-
 }
 
 // estados de partido
@@ -70,19 +71,39 @@ class EnJuego inherits EstadoPartido{
         return super(partido)
     }
 
+    // Punto 6
+    override method anotaPunto(partido,equipo){
+        partido.marcadorEquipo(equipo).sumarPuntos(1) // sumar punto
+        if(equipo!=equipoEnSaque){ 
+            equipo.rotar()
+            self.cambiarSaqueA(equipo)
+        }
+        self.verificarFinDe(partido)
+    }
+
+    method cambiarSaqueA(equipo){
+        equipoEnSaque = equipo
+    }
+
+    method verificarFinDe(partido){
+        if(partido.hayPuntajeFinal()){
+            partido.estadoActual(new Terminado())
+        }
+    }
 }
 
 class Terminado inherits EstadoPartido{
-
+    override method anotaPunto(partido,equipo){
+        throw new PartidoTerminadoException(message = "Fin del partido, no se pueden anotar más puntos")
+    }
 }
 
-
-
+class PartidoTerminadoException inherits DomainException{}
 
 
 class Equipo{
     const integrantes = []
-
+    var property puntos
     // Punto 1
     method alturaPromedio() = integrantes.sum{jugador => jugador.altura()} / self.cantidadJugadores()
     method cantidadJugadores() = integrantes.size()
@@ -92,6 +113,7 @@ class Equipo{
 
     // Punto 5
     method tieneSacadorPeligroso() = integrantes.find({jugador => jugador.posicionDeSaque()}).saquePeligroso()
+
 }
 
 class Jugador{
@@ -116,8 +138,6 @@ class Jugador{
 
     // Punto 5
     method posicionDeSaque() = posicionActual.posicionDeSaque()
-
-
 }
 
 // SAQUES 
