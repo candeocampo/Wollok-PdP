@@ -22,6 +22,7 @@ class Venta{
 class Agente{
     var property deuda
     const ventas = []
+    var estrategia // punto 4
 
     method vender(paquete,alma){
         if(!alma.puedeCostear(paquete)){
@@ -49,12 +50,39 @@ class Agente{
     method saldoDeuda() = self.deudaInicial() <= 0
 
     // 4.a
-    method atender(alma)
+    method atender(alma){
+        self.vender(estrategia.paquetePara(alma),alma)
+    }
 
-
+    //4.c
+    method cambiarEstrategia(nuevaEstrategia){
+        estrategia = nuevaEstrategia
+    }
 
 }
 class UserException inherits DomainException{}
+
+// Punto 4
+object clasico{
+    method paquetesCosteablesPara(alma) = departamentoDeLaMuerte.paquetesPredefinidos.filter({paquete => alma.puedeCostear(paquete)})
+    method paquetePara(alma) = self.paquetesCosteablesPara(alma).max({paq => paq.precioPara(alma)})
+}
+
+object navegante{
+    method paquePara(alma){
+        if(alma.cantidadAccionesBuenas() > 50){
+            new Crucero(costoBasico = alma.cantidadAccionesBuenas())
+        }else{ 
+            new Bote(costoBasico = alma.cantidadAccionesBuenas())
+        }
+    }
+}
+
+object indiferente{
+    method paquetePara(alma) = new PaloConBrujula (costoBasico = 1.randomUpTo(300))
+}
+
+
 
 class Alma{
     const dinero
@@ -74,8 +102,6 @@ class Paquete{
     // Punto 3
     method precioPara(alma) = (costoBasico * self.aniosQueReduceA(alma)).min(350)
     method aniosQueReduceA(alma)
-
-
 }
 
 // 3.a
@@ -96,10 +122,9 @@ class PaloConBrujula inherits Paquete{
     override method precioPara(alma) = costoBasico
 }
 
-
-
 object departamentoDeLaMuerte{
     const agentes = []
+    const property paquetesPredefinidos = [] // punto 4
     // 1.b
     method mejorAgente() = agentes.max{agente => agente.cantidadVentas()}
 
@@ -112,54 +137,7 @@ object departamentoDeLaMuerte{
     }
 
     method agentesQuePagaronDeuda() = agentes.filter{ agente=> agente.saldoDeuda()}
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
