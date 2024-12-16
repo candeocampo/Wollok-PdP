@@ -1,6 +1,10 @@
 /*
+Puntos de Entrada A
 1. mago.poderTotal()
 2. mago.desafiarA(otroMago)
+
+Puntos de Entrada B
+
 */
 
 
@@ -20,13 +24,21 @@ class Mago{
     method cantidadLetrasNombre() = nombreMago.size()
 
     // Punto 2
-    method desafiarA(otroMago)
+    method desafiarA(otroMago){
+        if(otroMago != nombreMago){
+            if(otroMago.esVencido(self)){
+            self.modificarEnergiaMagica(- otroMago.puntosEnergiaMagica())
+            }
+        }
+    }
 
     method esVencido(otroMago)
 
     method modificarEnergiaMagica(cantidad){
         puntosEnergiaMagica -=cantidad
     }
+
+    method puntosEnergiaMagica() = puntosEnergiaMagica
 
 }
 
@@ -59,9 +71,6 @@ class Inmortal inherits Mago{
     }
 }
 
-
-
-
 class ObjetoMagico{
     const valorBase
 
@@ -81,7 +90,6 @@ class Varita inherits ObjetoMagico{
             return valorBase
         }
     }
-    
 }
 
 class Tunica inherits ObjetoMagico{
@@ -104,7 +112,27 @@ object ojota{
     method poder(mago) = 10 * mago.cantidadLetrasNombre()
 }
 
+// Parte B
+class Gremio{
+    const magosAsociados = []
+ 
+    method initialize(){
+        if(magosAsociados.size() < 2){
+            throw new NoSePuedeCrearGremioException(message = "Cantidad nsuficiente de asociados para crear gremio")
+        }
+        else{
+            new Gremio(magosAsociados = magosAsociados)
+        }
+    }
 
+    method poderTotalGremial() = magosAsociados.sum{mago => mago.poderTotal()}
+    method reservaDeEnergiaMagica() = magosAsociados.sum{mago => mago.puntosEnergiaMagica()}
+    method liderGremio() = magosAsociados.max{mago => mago.poderTotal()}
+
+    
+}
+
+class NoSePuedeCrearGremioException inherits DomainException{}
 
 
 
